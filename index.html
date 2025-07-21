@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flashcard Quiz Project</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anek+Telugu:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <nav class="navbar">
+        <h1>Flashcard Quiz App</h1>
+        <!-- <button class="signIn-button standard-button">Sign In</button> -->
+      </nav>
+      <hr />
+    </header>
+
+    <aside>
+      <button
+        class="sidebar-button add-btn"
+        aria-label="Add Category or Question"
+      >
+        <img
+          class="add-button"
+          src="assets/icons8-add-60.png"
+          alt="Add Button Image"
+        />
+      </button>
+      <!-- <button
+        class="sidebar-button delete-btn"
+        aria-label="Delete Category or Question"
+      >
+        <img
+          class="delete-button"
+          src="assets/icons8-delete-60.png"
+          alt="Delete Button Image"
+        />
+      </button> -->
+    </aside>
+
+    <main>
+      <div class="categories card-container"></div>
+      <div class="questions card-container" style="display: none"></div>
+    </main>
+
+    <footer>
+      <p class="license">
+        Icons by
+        <a href="https://icons8.com/" target="_blank" rel="noopener noreferrer"
+          >Icons8</a
+        >
+      </p>
+    </footer>
+
+    <!-- Quiz Modal (initially hidden) -->
+    <div class="quiz-section popup-modal" style="display: none">
+      <div class="popup-container">
+        <button class="popup-close-button" aria-label="Close Quiz Popup">
+          ×
+        </button>
+        <h2 class="question">Question text</h2>
+        <p class="answer" style="display: none">Answer text</p>
+        <div class="button-container">
+          <button class="show-answer standard-button">Show answer</button>
+          <button class="next-question standard-button">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!--
+    Note: Add/Edit/Delete modals are dynamically created by JS (appended to body)
+    so no static markup needed here to avoid duplicates or misplacement.
+  -->
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
