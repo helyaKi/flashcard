@@ -408,3 +408,49 @@ a:hover {
   flex-direction: column;
   border: 1px solid var(--purple-1);
 }
+
+/* --- FIXES YOU REQUESTED --- */
+
+/* 1. Quiz popup modal container and layout fix */
+.quiz-section.popup-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--bg-popup);
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  display: none; /* default hidden, shown by JS */
+  display: flex; /* Ensure flex container when shown */
+}
+
+.quiz-section.popup-modal .popup-container {
+  width: var(--popup-width);
+  height: var(--popup-height);
+  background: var(--bg-white);
+  border-radius: var(--standard-border-radius);
+  box-shadow: var(--standard-box-shadow);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  box-sizing: border-box;
+}
+
+/* 2. Center the "x" in question content popup close button */
+.popup-modal.card-content-show .popup-close-button {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.5rem;
+  line-height: 2.5rem;
+  text-align: center;
+  vertical-align: middle;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  padding: 0;
+}

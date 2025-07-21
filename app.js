@@ -22,15 +22,163 @@ let currentCategory = null;
 let quizData = [];
 let quizIndex = 0;
 
-const modal = document.querySelector(".quiz-section.popup-modal");
-const quizQuestion = document.querySelector(".popup-container .question");
-const quizAnswer = document.querySelector(".popup-container .answer");
-const showAnswerBtn = document.querySelector(".show-answer");
-const nextBtn = document.querySelector(".next-question");
-const closeBtn = document.querySelector(".popup-close-button");
+// Quiz popup elements (initialized in DOMContentLoaded)
+let modal, quizQuestion, quizAnswer, showAnswerBtn, nextBtn, closeBtn;
 
-const POPUP_WIDTH = "400px";
-const POPUP_HEIGHT = "300px";
+window.addEventListener("DOMContentLoaded", async () => {
+  // Select quiz popup elements
+  modal = document.querySelector(".quiz-section.popup-modal");
+  quizQuestion = modal.querySelector(".question");
+  quizAnswer = modal.querySelector(".answer");
+  showAnswerBtn = modal.querySelector(".show-answer");
+  nextBtn = modal.querySelector(".next-question");
+  closeBtn = modal.querySelector(".popup-close-button");
+
+  // Attach event listeners for quiz popup buttons
+  showAnswerBtn.addEventListener("click", () => {
+    quizAnswer.style.display = "block";
+  });
+
+  nextBtn.addEventListener("click", () => {
+    quizIndex++;
+    showQuizQuestion();
+  });
+
+  closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // Load categories on page load
+  await loadCategories();
+});
+
+async function loadCategories() {
+  const snapshot = await db.collection("categories").get();
+  categoriesSection.innerHTML = "";
+  questionsSection.style.display = "none";
+  categoriesSection.style.display = "grid";
+  categoriesSection.style.gridTemplateColumns =
+    "repeat(auto-fit, minmax(200px, 1fr))";
+  categoriesSection.style.gap = "16px";
+
+  for (const doc of snapshot.docs) {
+    const data = doc.data();
+    const categoryId = doc.id;
+
+    const questionsSnap = await db
+      .collection("categories")
+      .doc(categoryId)
+      .collection("questions")
+      .get();
+    const questionCount = questionsSnap.size;
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <h2>${data.name}</h2>
+      <p class="secondary-text">${questionCount}</p>
+      <div class="button-container">
+        <button class="start-quiz-button standard-button">Start quiz</button>
+      </div>
+    `;
+    categoriesSection.appendChild(card);
+
+    card.addEventListener("click", async (e) => {
+      if (!e.target.classList.contains("start-quiz-button")) {
+        currentCategory = categoryId;
+        await showQuestionsForCategory(currentCategory);
+      }
+    });
+
+    card.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      showContextMenuPopup("category", categoryId, data.name);
+    });
+
+    const startBtn = card.querySelector(".start-quiz-button");
+    startBtn.addEventListener("click", async () => {
+      currentCategory = categoryId;
+      quizData = [];
+
+      const qSnap = await db
+        .collection("categories")
+        .doc(currentCategory)
+        .collection("questions")
+        .get();
+      qSnap.forEach((doc) => {
+        const q = doc.data();
+        quizData.push({ question: q.question, answer: q.answer });
+      });
+
+      quizIndex = 0;
+      showQuizQuestion();
+    });
+  }
+}
+
+addButton.addEventListener("click", () => {
+  if (!currentCategory) {
+    showAddCategoryPopup();
+  } else {
+    showAddQuestionPopup();
+  }
+});
+
+deleteButton.addEventListener("click", () => {
+  if (!currentCategory) {
+    alert("Please select a category to delete");
+  } else {
+    showDeleteCategoryPopupById(currentCategory);
+  }
+});
+
+async function showQuestionsForCategory(categoryId) {
+  const qSnap = await db
+    .collection("categories")
+    .doc(categoryId)
+    .collection("questions")
+    .get();
+
+  categoriesSection.style.display = "none";
+  questionsSection.innerHTML = "";
+  questionsSection.classList.add("card-container");
+  questionsSection.style.display = "";
+
+  qSnap.forEach((doc) => {
+    const q = doc.data();
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<h2>${q.question}</h2><p class="answer" style="display:none; opacity: 0; transition: opacity 0.5s ease;">${q.answer}</p>`;
+    questionsSection.appendChild(card);
+
+    card.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      showContextMenuPopup("question", doc.id, q.question, q.answer, {
+        x: e.clientX,
+        y: e.clientY,
+      });
+    });
+
+    card.addEventListener("click", () => {
+      showQuestionAnswerPopup(q.question, q.answer);
+    });
+  });
+
+  currentCategory = categoryId;
+  history.pushState({ page: "questions" }, "", "");
+}
+
+window.addEventListener("popstate", (event) => {
+  if (event.state && event.state.page === "questions") {
+    questionsSection.style.display = "grid";
+    categoriesSection.style.display = "none";
+  } else {
+    questionsSection.style.display = "none";
+    categoriesSection.style.display = "grid";
+  }
+});
+
+// Popup helpers
 
 function createCenteredPopup(
   title,
@@ -53,8 +201,8 @@ function createCenteredPopup(
   popup.style.borderRadius = "var(--standard-border-radius)";
   popup.style.boxShadow = "var(--standard-box-shadow)";
   popup.style.padding = "1rem";
-  popup.style.width = POPUP_WIDTH;
-  popup.style.height = POPUP_HEIGHT;
+  popup.style.width = "400px";
+  popup.style.height = "300px";
   popup.style.display = "flex";
   popup.style.flexDirection = "column";
   popup.style.gap = "0.5rem";
@@ -190,145 +338,19 @@ function showQuestionAnswerPopup(question, answer) {
   const popup = document.createElement("div");
   popup.className = "popup-modal card-content-show";
   popup.innerHTML = `
-    <div style="flex-grow:1; overflow-y:auto; padding-top: 2rem;">
-      <h2 style="align-self: left;">Question:</h2>
+    <div style="flex-grow:1; overflow-y:auto; padding: 2rem 2rem;">
+      <h2 style="text-align:left;">Question:</h2>
       <p>${question}</p>
-      <h2 style="align-self: left;">Answer:</h2>
+      <h2 style="text-align:left;">Answer:</h2>
       <p>${answer}</p>
     </div>
-    <button class="popup-close-button standard-button"style="text-align:center;">x</button>
+    <button class="popup-close-button standard-button" style="text-align:center;">x</button>
   `;
 
   document.body.appendChild(popup);
 
   popup.querySelector(".popup-close-button").onclick = () => popup.remove();
 }
-
-async function showQuestionsForCategory(categoryId) {
-  const qSnap = await db
-    .collection("categories")
-    .doc(categoryId)
-    .collection("questions")
-    .get();
-
-  categoriesSection.style.display = "none";
-  questionsSection.innerHTML = "";
-  questionsSection.classList.add("card-container");
-  questionsSection.style.display = "";
-
-  qSnap.forEach((doc) => {
-    const q = doc.data();
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `<h2>${q.question}</h2><p class="answer" style="display:none; opacity: 0; transition: opacity 0.5s ease;">${q.answer}</p>`;
-    questionsSection.appendChild(card);
-
-    card.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-      showContextMenuPopup("question", doc.id, q.question, q.answer, {
-        x: e.clientX,
-        y: e.clientY,
-      });
-    });
-
-    card.addEventListener("click", () => {
-      showQuestionAnswerPopup(q.question, q.answer);
-    });
-  });
-
-  currentCategory = categoryId;
-  history.pushState({ page: "questions" }, "", "");
-}
-
-window.addEventListener("popstate", (event) => {
-  if (event.state && event.state.page === "questions") {
-    questionsSection.style.display = "grid";
-    categoriesSection.style.display = "none";
-  } else {
-    questionsSection.style.display = "none";
-    categoriesSection.style.display = "grid";
-  }
-});
-
-window.addEventListener("DOMContentLoaded", async () => {
-  const snapshot = await db.collection("categories").get();
-  categoriesSection.innerHTML = "";
-  questionsSection.style.display = "none";
-  categoriesSection.style.display = "grid";
-  categoriesSection.style.gridTemplateColumns =
-    "repeat(auto-fit, minmax(200px, 1fr))";
-  categoriesSection.style.gap = "16px";
-
-  for (const doc of snapshot.docs) {
-    const data = doc.data();
-    const categoryId = doc.id;
-
-    const questionsSnap = await db
-      .collection("categories")
-      .doc(categoryId)
-      .collection("questions")
-      .get();
-    const questionCount = questionsSnap.size;
-
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <h2>${data.name}</h2>
-      <p class="secondary-text">${questionCount}</p>
-      <div class="button-container">
-        <button class="start-quiz-button standard-button">Start quiz</button>
-      </div>
-    `;
-    categoriesSection.appendChild(card);
-
-    card.addEventListener("click", async (e) => {
-      if (!e.target.classList.contains("start-quiz-button")) {
-        currentCategory = categoryId;
-        await showQuestionsForCategory(currentCategory);
-      }
-    });
-
-    card.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-      showContextMenuPopup("category", categoryId, data.name);
-    });
-
-    const startBtn = card.querySelector(".start-quiz-button");
-    startBtn.addEventListener("click", async () => {
-      currentCategory = categoryId;
-      quizData = [];
-
-      const qSnap = await db
-        .collection("categories")
-        .doc(currentCategory)
-        .collection("questions")
-        .get();
-      qSnap.forEach((doc) => {
-        const q = doc.data();
-        quizData.push({ question: q.question, answer: q.answer });
-      });
-
-      quizIndex = 0;
-      showQuizQuestion();
-    });
-  }
-});
-
-addButton.addEventListener("click", () => {
-  if (!currentCategory) {
-    showAddCategoryPopup();
-  } else {
-    showAddQuestionPopup();
-  }
-});
-
-deleteButton.addEventListener("click", () => {
-  if (!currentCategory) {
-    alert("Please select a category to delete");
-  } else {
-    showDeleteCategoryPopupById(currentCategory);
-  }
-});
 
 function showAddCategoryPopup() {
   const innerHTML = `<textarea id="category-name" class="popup-input popup-category-field show" placeholder="Category Name" style="resize:none;"></textarea>`;
@@ -487,16 +509,3 @@ function showQuizQuestion() {
 
   modal.style.display = "flex";
 }
-
-showAnswerBtn.addEventListener("click", () => {
-  quizAnswer.style.display = "block";
-});
-
-nextBtn.addEventListener("click", () => {
-  quizIndex++;
-  showQuizQuestion();
-});
-
-closeBtn.addEventListener("click", () => {
-  modal.style.display = "none";
-});
