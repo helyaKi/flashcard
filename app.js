@@ -1,16 +1,16 @@
 // Firebase setup
-const firebaseConfig = {
-  apiKey: "AIzaSyCDdorV_XjCdiC6-yq3lnPi6BrLMnRFlow",
-  authDomain: "flashcard-app-92d56.firebaseapp.com",
-  projectId: "flashcard-app-92d56",
-  storageBucket: "flashcard-app-92d56.appspot.com",
-  messagingSenderId: "38614423923",
-  appId: "1:38614423923:web:11454836f3a0c523fdcd06",
-  measurementId: "G-PX1VX72VJ2",
-};
+// const firebaseConfig = {
+//   apiKey: "AIzaSyCDdorV_XjCdiC6-yq3lnPi6BrLMnRFlow",
+//   authDomain: "flashcard-app-92d56.firebaseapp.com",
+//   projectId: "flashcard-app-92d56",
+//   storageBucket: "flashcard-app-92d56.appspot.com",
+//   messagingSenderId: "38614423923",
+//   appId: "1:38614423923:web:11454836f3a0c523fdcd06",
+//   measurementId: "G-PX1VX72VJ2",
+// };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// firebase.initializeApp(firebaseConfig);
+// const db = firebase.firestore();
 
 // DOM Elements
 const addButton = document.querySelectorAll(".sidebar-button")[0];
