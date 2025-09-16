@@ -1,4 +1,4 @@
-// Firebase setup
+// // Firebase setup
 // const firebaseConfig = {
 //   apiKey: "AIzaSyCDdorV_XjCdiC6-yq3lnPi6BrLMnRFlow",
 //   authDomain: "flashcard-app-92d56.firebaseapp.com",
@@ -148,7 +148,8 @@ async function showQuestionsForCategory(categoryId) {
     const q = doc.data();
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `<h2>${q.question}</h2><p class="answer" style="display:none; opacity: 0; transition: opacity 0.5s ease;">${q.answer}</p>`;
+    card.innerHTML = `<h2>${q.question}</h2><p class="answer" 
+    style="display:none; opacity: 0; transition: opacity 0.5s ease;">${q.answer}</p>`;
     questionsSection.appendChild(card);
 
     card.addEventListener("contextmenu", (e) => {
@@ -179,7 +180,6 @@ window.addEventListener("popstate", (event) => {
 });
 
 // Popup helpers
-
 function createCenteredPopup(
   title,
   innerHTMLContent,
