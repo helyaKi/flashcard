@@ -1,7 +1,5 @@
 namespace Flashcard.Backend.Application.Categories.DTOs;
-
-public class CategoryDto
+public class UpdateCategoryRequestDto
 {
-    public required int Id { get; set; }
     public required string Name { get; set; }
 }

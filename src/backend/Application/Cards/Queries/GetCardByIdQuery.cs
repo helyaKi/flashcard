@@ -9,12 +9,12 @@ public class GetCardByIdQuery
 
     public GetCardByIdQuery(AppDbContext db) => _db = db;
 
-    public async Task<CardDto?> ExecuteAsync(int id)
+    public async Task<ResponseCardDto?> ExecuteAsync(int id)
     {
         var card = await _db.Cards.FindAsync(id);
         if (card == null) return null;
 
-        return new CardDto
+        return new ResponseCardDto
         {
             Id = card.Id,
             Question = card.Question,

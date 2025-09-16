@@ -12,7 +12,7 @@ public class CreateCardCommand
 
     public async Task<Card?> ExecuteAsync(string question, string answer, int categoryId)
     {
-        // ✅ Check if category exists
+        // Check if category exists
         var categoryExists = await _db.Categories.AnyAsync(c => c.Id == categoryId);
         if (!categoryExists)
             return null;

@@ -10,10 +10,10 @@ public class GetAllCardsQuery
 
     public GetAllCardsQuery(AppDbContext db) => _db = db;
 
-    public async Task<List<CardDto>> ExecuteAsync()
+    public async Task<List<ResponseCardDto>> ExecuteAsync()
     {
         return await _db.Cards
-            .Select(c => new CardDto
+            .Select(c => new ResponseCardDto
             {
                 Id = c.Id,
                 Question = c.Question,

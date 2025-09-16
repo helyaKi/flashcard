@@ -1,6 +1,6 @@
 namespace Flashcard.Backend.Application.Cards.DTOs;
 
-public class CardDto
+public class ResponseCardDto
 {
     public required int Id { get; set; }
     public string Question { get; set; } = string.Empty;

@@ -9,11 +9,11 @@ public class GetCategoryByIdQuery
 
     public GetCategoryByIdQuery(AppDbContext db) => _db = db;
 
-    public async Task<CategoryDto?> ExecuteAsync(int id)
+    public async Task<ResponseCategoryDto?> ExecuteAsync(int id)
     {
         var category = await _db.Categories.FindAsync(id);
         if (category == null) return null;
 
-        return new CategoryDto { Id = category.Id, Name = category.Name };
+        return new ResponseCategoryDto { Id = category.Id, Name = category.Name };
     }
 }
